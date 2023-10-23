@@ -1,6 +1,6 @@
 using Graphs
 
-function dsat(g::SimpleGraph)::Graph.Coloring
+function dsat(g::SimpleGraph)::Graphs.Coloring
     colors = zeros(Int, nv(g))
     saturation_degrees = zeros(Int,nv(g))
 
@@ -35,5 +35,5 @@ function dsat(g::SimpleGraph)::Graph.Coloring
         end
         colors[selected_vertex] = minimum(available_colors)
     end
-    return Graphs.Coloring(length(colors),colors)
+    return Graphs.Coloring(length(unique(colors)),colors)
 end
