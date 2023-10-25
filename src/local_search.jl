@@ -5,8 +5,6 @@ function LS_best_1opt!(S::Solution)::Bool
     obj_diff = S.T[v,new_color]
     if obj_diff < 0
         old_color = S.coloring.colors[v]
-        if new_color == old_color
-        end
         S.coloring.colors[v] = new_color
         update_color_change_table!(v,old_color,new_color,S)
         return true

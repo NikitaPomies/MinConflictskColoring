@@ -123,12 +123,20 @@ function update_color_change_table!(v::Int,color_before::Int,
 
     for neighbor in all_neighbors(S.graph,v)
         neighbor_color = S.coloring.colors[neighbor]
-        if color_before != neighbor_color
-            S.T[neighbor,color_before] -= 1
+        if color_before == neighbor_color
+            for color in 1:k
+                if color != neighbor_color
+                    S.T[neighbor,color] += 1
+                end
+            end
+        elseif color_after == neighbor_color
+            for color in 1:k
+                if color != neighbor_color
+                    S.T[neighbor,color] -= 1
+                end
+            end
+        else
+            S.T[neighbor,color_after] += 1
         end
-        if color_after != neighbor_color
-            S.T[neighbor,color_after] += 1 
-        end
-        
     end
 end
