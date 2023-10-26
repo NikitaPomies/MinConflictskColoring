@@ -129,14 +129,17 @@ function update_color_change_table!(v::Int,color_before::Int,
                     S.T[neighbor,color] += 1
                 end
             end
+            S.T[neighbor,color_after] += 1
         elseif color_after == neighbor_color
             for color in 1:k
                 if color != neighbor_color
                     S.T[neighbor,color] -= 1
                 end
             end
+            S.T[neighbor,color_before] -= 1
         else
             S.T[neighbor,color_after] += 1
+            S.T[neighbor,color_before] -= 1
         end
     end
 end
