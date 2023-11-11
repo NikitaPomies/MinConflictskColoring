@@ -4,9 +4,11 @@ mutable struct Solution
     graph::SimpleGraph{Int}
     coloring::Graphs.Coloring
     T::Matrix{Int}
+    TabuList::Vector{Tuple{Int,Int}}
     function Solution(graph::SimpleGraph{Int}, coloring::Graphs.Coloring)
         T = compute_color_change_table(graph,coloring.colors)
-        new(graph, coloring, T)
+        TabuList = []
+        new(graph, coloring, T,TabuList)
     end
 end
 
@@ -87,6 +89,8 @@ function reindex_vector(vector)
 end
 
 
+
+
 function compute_color_change_table(graph::SimpleGraph,colors::Vector{Int})::Matrix{Int}
     n = nv(graph)
     k = length(unique(colors))
@@ -95,51 +99,52 @@ function compute_color_change_table(graph::SimpleGraph,colors::Vector{Int})::Mat
         for color in 1:k
             cost = 0
             for neighbor in all_neighbors(graph,i)
-                if colors[neighbor] == color
-                    cost+= 1
-                end
+                cost += ((colors[neighbor] == color) - (colors[neighbor] == colors[i]))
             end
             cost_matrix[i,color] = cost
             
-        end
-    
-    end
-    for i in 1:n
-        for color in 1:k
-            cost_matrix[i,color] = cost_matrix[i,color] - cost_matrix[i,colors[i]]
         end
     end
     return cost_matrix
 
 end
 
+
+
 function update_color_change_table!(v::Int,color_before::Int,
     color_after::Int,S::Solution)
     k = size(S.T,2)
-    old_cost = S.T[v,color_after]
-    for color in 1:k
-        S.T[v,color] += -old_cost
-    end
-
+    
     for neighbor in all_neighbors(S.graph,v)
         neighbor_color = S.coloring.colors[neighbor]
+
+        if neighbor_color != color_before
+            S.T[neighbor,color_before] -= 1
+        end
+
+        if neighbor_color != color_after
+            S.T[neighbor,color_after] += 1
+        end
+        
+            
         if color_before == neighbor_color
             for color in 1:k
                 if color != neighbor_color
                     S.T[neighbor,color] += 1
                 end
+                S.T[v,color] += 1
             end
-            S.T[neighbor,color_after] += 1
-        elseif color_after == neighbor_color
+        end
+
+        if color_after == neighbor_color
             for color in 1:k
                 if color != neighbor_color
                     S.T[neighbor,color] -= 1
                 end
+                S.T[v,color] -= 1
             end
-            S.T[neighbor,color_before] -= 1
-        else
-            S.T[neighbor,color_after] += 1
-            S.T[neighbor,color_before] -= 1
         end
+        
+       
     end
 end
