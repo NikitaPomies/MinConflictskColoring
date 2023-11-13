@@ -28,10 +28,7 @@ end
 function LS_best_1opt!(S::Solution)::Bool
     index = customize_argmin(S.T, S.TabuList, S)
     v, new_color = index[1], index[2]
-    obj_diff = S.T[v, new_color]
-    old_color = S.coloring.colors[v]
-    println(obj_diff)
-    
+    old_color = S.coloring.colors[v]    
     S.coloring.colors[v] = new_color
     push!(S.TabuList, (v, old_color))
     update_color_change_table!(v, old_color, new_color, S)
@@ -50,7 +47,7 @@ function TabuSearch(S::Solution)
     global best_found_val = coloring_cost(S)
     global iteration = 0
     global step_counter = 0
-    while iteration < 20000
+    while (iteration < 20000 && best_found_val!=0)
 
         println("Iteration $(iteration)")
         improved = LS_best_1opt!(S)
