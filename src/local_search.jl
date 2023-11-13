@@ -31,6 +31,7 @@ function LS_best_1opt!(S::Solution)::Bool
     old_color = S.coloring.colors[v]    
     S.coloring.colors[v] = new_color
     push!(S.TabuList, (v, old_color))
+    S.cost += S.T[v,new_color]
     update_color_change_table!(v, old_color, new_color, S)
     return true
 
@@ -44,18 +45,18 @@ end
 
 function TabuSearch(S::Solution)
     global best_found_sol = deepcopy(S)
-    global best_found_val = coloring_cost(S)
+    global best_found_val = S.cost
     global iteration = 0
     global step_counter = 0
-    while (iteration < 20000 && best_found_val!=0)
+    while (iteration < 10000 && best_found_val!=0)
 
         println("Iteration $(iteration)")
         improved = LS_best_1opt!(S)
         if improved
-            println("Cost after best 1opt of iteration $(iteration) $(coloring_cost(S))")
-            if coloring_cost(S) < best_found_val
+            println("Cost after best 1opt of iteration $(iteration) $(coloring_cost(S)) $(S.cost)")
+            if S.cost < best_found_val
                 best_found_sol = deepcopy(S)
-                best_found_val = coloring_cost(S)
+                best_found_val = S.cost
             end
         end
         if length(S.TabuList) > 60

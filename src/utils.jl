@@ -5,10 +5,12 @@ mutable struct Solution
     coloring::Graphs.Coloring
     T::Matrix{Int}
     TabuList::Vector{Tuple{Int,Int}}
+    cost::Int
     function Solution(graph::SimpleGraph{Int}, coloring::Graphs.Coloring)
         T = compute_color_change_table(graph,coloring.colors)
         TabuList = []
-        new(graph, coloring, T,TabuList)
+        cost = coloring_cost(graph,coloring)
+        new(graph, coloring, T,TabuList,cost)
     end
 end
 
@@ -53,15 +55,20 @@ function is_coloring_valid(S::Solution,k::Int)
     end
 end
 
-function coloring_cost(S::Solution)
+
+function coloring_cost(graph::SimpleGraph,coloring::Graphs.Coloring)
     num_conflicts = 0
-    for edge in edges(S.graph)
+    for edge in edges(graph)
         src, dst = edge.src,edge.dst
-        if S.coloring.colors[src] == S.coloring.colors[dst]
+        if coloring.colors[src] == coloring.colors[dst]
             num_conflicts+=1
         end
     end
     return num_conflicts
+end
+
+function coloring_cost(S::Solution)
+   return coloring_cost(S.graph,S.coloring)
 end
 
 function get_conclicted_vertices(S::Solution)::Vector{Int}
