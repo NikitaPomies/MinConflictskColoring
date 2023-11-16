@@ -25,7 +25,7 @@ function customize_argmin(M::Matrix{Int}, skip::Matrix{Int64}, S::Solution,curre
 end
 
 
-function LS_best_1opt!(S::Solution,best_found_val::Int,current_iteration::Int)::Bool
+function LS_best_1opt!(S::Solution,best_found_val::Int,current_iteration::Int,plateau_counter::Int)::Bool
     
     index = customize_argmin(S.T, zeros(Int,nv(S.graph),length(S.coloring.colors)), S,current_iteration)
     v, new_color,obj_diff = index[1], index[2],index[3]
@@ -38,7 +38,7 @@ function LS_best_1opt!(S::Solution,best_found_val::Int,current_iteration::Int)::
     end
     old_color = S.coloring.colors[v]    
     S.coloring.colors[v] = new_color
-    S.TabuMatrix[v, old_color] = current_iteration + 20 + 1 * S.cost
+    S.TabuMatrix[v, old_color] = current_iteration + 20 +  round(Int,S.cost) + div(plateau_counter,1000)
     S.cost += S.T[v,new_color]
     update_color_change_table!(v, old_color, new_color, S)
     return true
@@ -55,11 +55,21 @@ function TabuSearch(S::Solution)
     global best_found_sol = deepcopy(S)
     global best_found_val = S.cost
     global iteration = 0
-    global step_counter = 0
-    while (iteration < 20000 && best_found_val!=0)
+    global plateau_counter = 0
+    global previous_cost = S.cost
+    
+    while (iteration < 100000 && best_found_val!=0)
 
         println("Iteration $(iteration)")
-        improved = LS_best_1opt!(S,best_found_val,iteration)
+        improved = LS_best_1opt!(S,best_found_val,iteration,plateau_counter)
+        if S.cost == previous_cost
+            plateau_counter += 1
+            println(plateau_counter)
+        else
+            previous_cost = S.cost
+            plateau_counter = 0
+        end
+
         if improved
             println("Cost after best 1opt of iteration $(iteration) $(coloring_cost(S)) $(S.cost)")
             if S.cost < best_found_val
@@ -69,7 +79,6 @@ function TabuSearch(S::Solution)
         end
      
         iteration += 1
-        step_counter += 1
         println(" ")
     end
     return best_found_sol
