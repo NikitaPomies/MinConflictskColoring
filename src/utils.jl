@@ -4,13 +4,13 @@ mutable struct Solution
     graph::SimpleGraph{Int}
     coloring::Graphs.Coloring
     T::Matrix{Int}
-    TabuList::Vector{Tuple{Int,Int}}
+    TabuMatrix::Matrix{Int}
     cost::Int
     function Solution(graph::SimpleGraph{Int}, coloring::Graphs.Coloring)
         T = compute_color_change_table(graph,coloring.colors)
-        TabuList = []
+        TabuMatrix = zeros(Int, nv(graph),length(unique(coloring.colors)))
         cost = coloring_cost(graph,coloring)
-        new(graph, coloring, T,TabuList,cost)
+        new(graph, coloring, T,TabuMatrix,cost)
     end
 end
 
