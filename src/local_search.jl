@@ -55,7 +55,7 @@ function LS_best_1opt!(S::Solution,best_found_val::Int,current_iteration::Int,pl
     end
     old_color = S.coloring.colors[v]    
     S.coloring.colors[v] = new_color
-    S.TabuMatrix[v, old_color] = current_iteration + 10 +  round(Int,S.cost) + div(plateau_counter,1000)
+    S.TabuMatrix[v, old_color] = current_iteration + 10 +  round(Int,0.6*S.cost) + div(plateau_counter,1000)
     S.cost += S.T[v,new_color]
     update_color_change_table!(v, old_color, new_color, S)
     return true
