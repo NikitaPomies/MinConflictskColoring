@@ -46,7 +46,7 @@ function LS_best_1opt!(S::Solution,best_found_val::Int,current_iteration::Int,pl
     v_no_tabu, new_color_no_tabu,obj_diff_no_tabu = index_no_tabu[1][1], index_no_tabu[1][2],index_no_tabu[2]
 
     # Aspiration criteria
-    if (S.cost + obj_diff_no_tabu < best_found_val)
+    if (S.cost + obj_diff_tabu < best_found_val)
         print("ASPIRATION !!!")
         v, new_color,obj_diff =v_tabu,new_color_tabu,obj_diff_tabu
     else
